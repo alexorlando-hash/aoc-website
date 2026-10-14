@@ -1,0 +1,63 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Cta from '../components/Cta.astro';
+import '../styles/styles.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  showCta?: boolean;
+}
+
+const { title, description = "A thoughtful space for mental health, substance use, and meaningful change. Explore Alex Orlando Counselling in Calgary, Alberta.", showCta = true } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header />
+    <slot />
+    {showCta && <Cta />}
+    <Footer />
+    <script>
+      const menuButton = document.querySelector('.menu-button');
+      const menu = document.querySelector('#mobile-nav');
+      function closeMenu() {
+        if (!menu || !menuButton) return;
+        menu.hidden = true;
+        menuButton.setAttribute('aria-expanded', 'false');
+        menuButton.textContent = 'Menu';
+      }
+      if (menuButton && menu) {
+        menuButton.addEventListener('click', () => {
+          const open = menuButton.getAttribute('aria-expanded') !== 'true';
+          menuButton.setAttribute('aria-expanded', String(open));
+          menu.hidden = !open;
+          menuButton.textContent = open ? 'Close' : 'Menu';
+        });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menu && !menu.hidden) {
+          closeMenu();
+          if (menuButton instanceof HTMLElement) menuButton.focus();
+        }
+      });
+      window.matchMedia('(min-width: 761px)').addEventListener('change', (e) => {
+        if (e.matches) closeMenu();
+      });
+      document.querySelectorAll('nav a').forEach((a) => {
+        if (a instanceof HTMLAnchorElement && a.pathname === window.location.pathname) {
+          a.setAttribute('aria-current', 'page');
+        }
+      });
+    </script>
+  </body>
+</html>
