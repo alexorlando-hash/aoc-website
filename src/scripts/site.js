@@ -4,4 +4,8 @@ function closeMenu(){menu.hidden=true;menuButton.setAttribute('aria-expanded','f
 menuButton.addEventListener('click',()=>{const open=menuButton.getAttribute('aria-expanded')!=='true';menuButton.setAttribute('aria-expanded',String(open));menu.hidden=!open;menuButton.textContent=open?'Close':'Menu';});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){closeMenu();menuButton.focus();}});
 window.matchMedia('(min-width: 761px)').addEventListener('change',e=>{if(e.matches)closeMenu();});
-document.querySelectorAll('nav a').forEach(a=>{if(a.pathname===location.pathname)a.setAttribute('aria-current','page');});
+const normalizedPath = path => path.replace(/index\.html$/, '').replace(/\/$/, '') || '/';
+document.querySelectorAll('nav a').forEach(a=>{if(a.origin===location.origin && normalizedPath(a.pathname)===normalizedPath(location.pathname))a.setAttribute('aria-current','page');});
+document.querySelector('header').addEventListener('focusout', event => {
+  if (!menu.hidden && event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) closeMenu();
+});

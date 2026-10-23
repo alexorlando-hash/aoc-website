@@ -8,9 +8,15 @@ interface Props {
   title: string;
   description?: string;
   showCta?: boolean;
+  bodyClass?: string;
 }
 
-const { title, description = "A thoughtful space for mental health, substance use, and meaningful change. Explore Alex Orlando Counselling in Calgary, Alberta.", showCta = true } = Astro.props;
+const {
+  title,
+  description = "A thoughtful space for mental health, substance use, and meaningful change. Explore Alex Orlando Counselling in Calgary, Alberta.",
+  showCta = true,
+  bodyClass = Astro.url.pathname === '/' ? 'home' : undefined
+} = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -21,7 +27,7 @@ const { title, description = "A thoughtful space for mental health, substance us
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body>
+  <body class={bodyClass}>
     <a class="skip" href="#main">Skip to content</a>
     <Header />
     <slot />
@@ -53,11 +59,29 @@ const { title, description = "A thoughtful space for mental health, substance us
       window.matchMedia('(min-width: 761px)').addEventListener('change', (e) => {
         if (e.matches) closeMenu();
       });
+      const normalizedPath = (path: string) => path.replace(/index\.html$/, '').replace(/\/$/, '') || '/';
       document.querySelectorAll('nav a').forEach((a) => {
-        if (a instanceof HTMLAnchorElement && a.pathname === window.location.pathname) {
+        if (
+          a instanceof HTMLAnchorElement &&
+          a.origin === window.location.origin &&
+          normalizedPath(a.pathname) === normalizedPath(window.location.pathname)
+        ) {
           a.setAttribute('aria-current', 'page');
         }
       });
+      const header = document.querySelector('header');
+      if (header && menu) {
+        header.addEventListener('focusout', (event) => {
+          if (
+            !menu.hidden &&
+            event instanceof FocusEvent &&
+            event.relatedTarget instanceof Node &&
+            !header.contains(event.relatedTarget)
+          ) {
+            closeMenu();
+          }
+        });
+      }
     </script>
   </body>
 </html>
